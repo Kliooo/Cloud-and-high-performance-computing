@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RETRO RALLY — cloud prototype</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="css/style.css?v=25">
+</head>
+<body>
+  <div id="stage">
+    <canvas id="game" width="1280" height="720"></canvas>
+
+    <!-- Log in (returning users) -->
+    <section class="overlay" id="screen-login">
+      <div class="panel">
+        <h1 class="game-title">RETRO RALLY</h1>
+        <p class="game-subtitle">cloud prototype · race on <span id="track-name">Wheatfield Loop</span></p>
+        <p class="srv" id="login-version">…</p>
+        <label class="field">
+          <span>Username</span>
+          <input id="login-name" maxlength="24" autocomplete="off" spellcheck="false">
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <span class="pass-wrap">
+            <input id="login-pass" type="password" maxlength="64" autocomplete="off">
+            <button type="button" class="eye" id="login-eye" title="Show password" aria-label="Show password">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 5c-5 0-9 4.5-10 7 1 2.5 5 7 10 7s9-4.5 10-7c-1-2.5-5-7-10-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+            </button>
+          </span>
+        </label>
+        <p id="login-error" class="status bad hidden"></p>
+        <div class="buttons">
+          <button id="btn-login" class="btn btn-primary">LOG IN</button>
+        </div>
+        <p class="hint">No account? <button type="button" id="to-register" class="link">Registration</button></p>
+      </div>
+    </section>
+
+    <!-- Registration -->
+    <section class="overlay hidden" id="screen-register">
+      <div class="panel">
+        <h1 class="game-title">RETRO RALLY</h1>
+        <p class="game-subtitle">create your pilot account</p>
+        <label class="field">
+          <span>Username</span>
+          <input id="reg-name" maxlength="24" autocomplete="off" spellcheck="false">
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <span class="pass-wrap">
+            <input id="reg-pass" type="password" maxlength="64" autocomplete="off">
+            <button type="button" class="eye" id="reg-eye" title="Show password" aria-label="Show password">
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 5c-5 0-9 4.5-10 7 1 2.5 5 7 10 7s9-4.5 10-7c-1-2.5-5-7-10-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+            </button>
+          </span>
+        </label>
+        <p id="register-error" class="status bad hidden"></p>
+        <div class="buttons">
+          <button id="btn-register" class="btn btn-primary">REGISTER</button>
+        </div>
+        <p class="hint">Already have an account? <button type="button" id="to-login" class="link">Log in</button></p>
+      </div>
+    </section>
+
+    <!-- Main menu -->
+    <section class="overlay hidden" id="screen-menu">
+      <div class="panel panel-menu">
+        <h1 class="game-title">RETRO RALLY</h1>
+        <p class="game-subtitle">cloud prototype · pilot: <span id="pilot-label"></span></p>
+        <div class="buttons">
+          <button id="btn-single" class="btn btn-primary">SINGLE PLAYER</button>
+          <button id="btn-multi" class="btn">MULTIPLAYER</button>
+        </div>
+        <p class="hint">↑/W throttle · ↓/S brake · ←/→ steer · Space handbrake · R back on track · P pause · M sound</p>
+        <p class="srv" id="version-line">RETRO RALLY</p>
+        <p class="srv" id="srv-status">Checking the server…</p>
+      </div>
+    </section>
+
+    <!-- Single player menu -->
+    <section class="overlay hidden" id="screen-single">
+      <div class="panel">
+        <h2 class="panel-title">SINGLE PLAYER</h2>
+        <div class="buttons">
+          <button id="btn-training" class="btn btn-primary">TRAINING</button>
+          <button id="btn-vs-bots" class="btn">VS BOTS</button>
+        </div>
+        <div class="field-grid field-grid-inline">
+          <label class="field">
+            <span>Track</span>
+            <select id="track-select"></select>
+          </label>
+          <label class="field">
+            <span>Laps</span>
+            <input class="laps-input" id="laps-input" type="number" min="1" max="50" step="1" value="3" inputmode="numeric" autocomplete="off">
+            <small class="laps-hint">1 – 50</small>
+          </label>
+          <label class="field">
+            <span>Bots count</span>
+            <input class="laps-input" id="bots-input" type="number" min="0" max="3" step="1" value="3" inputmode="numeric" autocomplete="off">
+            <small class="laps-hint">0 – 3</small>
+          </label>
+          <label class="check">
+            <input id="opt-collisions" type="checkbox" checked>
+            <span>Car collisions (push other cars)</span>
+          </label>
+        </div>
+        <p class="hint">Training: solo run — the result goes to the leaderboard with the TRAINING tag.<br>VS BOTS: the chosen number of bots joins the grid — your best lap goes to the leaderboard of the chosen track.</p>
+        <div class="buttons">
+          <button id="btn-single-back" class="btn">BACK</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Multiplayer: room list -->
+    <section class="overlay hidden" id="screen-mp">
+      <div class="panel panel-wide">
+        <h2 class="panel-title">MULTIPLAYER</h2>
+        <p class="mp-net" id="mp-net">Connecting to the lobby…</p>
+        <div class="mp-list-head">
+          <span>Rooms open for players</span>
+          <span id="mp-rooms-count"></span>
+        </div>
+        <div class="table-wrap mp-rooms-wrap">
+          <table class="lb mp-rooms">
+            <thead>
+              <tr><th>Room</th><th>Track</th><th>Laps</th><th>Bots</th><th>Players</th><th class="mp-lock-col">Lock</th></tr>
+            </thead>
+            <tbody id="mp-rooms-body"></tbody>
+          </table>
+        </div>
+        <div class="mp-join hidden" id="mp-join">
+          <p class="mp-join-title">This room is locked — enter the password</p>
+          <label class="field">
+            <span>Password</span>
+            <input id="mp-join-pass" type="password" maxlength="32" autocomplete="off">
+          </label>
+          <div class="buttons buttons-row">
+            <button id="btn-mp-join-go" class="btn btn-primary">JOIN</button>
+            <button id="btn-mp-join-cancel" class="btn">CANCEL</button>
+          </div>
+        </div>
+        <p id="mp-error" class="status bad hidden"></p>
+        <div class="buttons">
+          <button id="btn-mp-create" class="btn btn-primary">CREATE ROOM</button>
+          <button id="btn-mp-back" class="btn">BACK</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Multiplayer: room creation -->
+    <section class="overlay hidden" id="screen-mp-create">
+      <div class="panel">
+        <h2 class="panel-title">CREATE ROOM</h2>
+        <label class="field">
+          <span>Room name</span>
+          <input id="mp-room-name" maxlength="24" autocomplete="off" spellcheck="false">
+        </label>
+        <div class="field-grid">
+          <label class="field">
+            <span>Track</span>
+            <select id="mp-track-select"></select>
+          </label>
+          <label class="field">
+            <span>Laps</span>
+            <input class="laps-input" id="mp-laps-input" type="number" min="1" max="50" step="1" value="3" inputmode="numeric" autocomplete="off">
+            <small class="laps-hint">1 – 50</small>
+          </label>
+          <label class="field">
+            <span>Bots count</span>
+            <input class="laps-input" id="mp-bots-input" type="number" min="0" max="3" step="1" value="2" inputmode="numeric" autocomplete="off">
+            <small class="laps-hint">0 – 3</small>
+          </label>
+          <label class="field">
+            <span>Password (optional)</span>
+            <input id="mp-password" type="password" maxlength="32" autocomplete="off">
+          </label>
+          <label class="check">
+            <input id="mp-opt-collisions" type="checkbox" checked>
+            <span>Car collisions (push other cars)</span>
+          </label>
+        </div>
+        <p id="mp-create-error" class="status bad hidden"></p>
+        <div class="buttons">
+          <button id="btn-mp-create-go" class="btn btn-primary">CREATE</button>
+          <button id="btn-mp-create-back" class="btn">BACK</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Multiplayer: room lobby -->
+    <section class="overlay hidden" id="screen-mp-room">
+      <div class="panel panel-wide">
+        <h2 class="panel-title" id="mp-room-title">ROOM</h2>
+        <p class="mp-net" id="mp-room-net">—</p>
+        <div class="mp-cols">
+          <div class="mp-col">
+            <h3 class="mp-sub">Players <span id="mp-players-count"></span></h3>
+            <ul class="mp-players" id="mp-players"></ul>
+            <p class="mp-settings" id="mp-room-settings"></p>
+            <div class="buttons buttons-row">
+              <button id="btn-mp-ready" class="btn btn-primary">READY</button>
+              <span id="mp-start-wrap" class="hidden">
+                <button id="btn-mp-start" class="btn btn-primary">START RACE</button>
+              </span>
+              <button id="btn-mp-leave" class="btn">LEAVE</button>
+            </div>
+            <div class="mp-host hidden" id="mp-host-tools">
+              <h3 class="mp-sub">Host settings</h3>
+              <div class="field-grid field-grid-inline">
+                <label class="field">
+                  <span>Track</span>
+                  <select id="mp-room-track"></select>
+                </label>
+                <label class="field">
+                  <span>Laps</span>
+                  <input class="laps-input" id="mp-room-laps" type="number" min="1" max="50" step="1" value="3" inputmode="numeric" autocomplete="off">
+                  <small class="laps-hint">1 – 50</small>
+                </label>
+                <label class="field">
+                  <span>Bots count</span>
+                  <input class="laps-input" id="mp-room-bots-count" type="number" min="0" max="3" step="1" value="2" inputmode="numeric" autocomplete="off">
+                  <small class="laps-hint">0 – 3</small>
+                </label>
+                <label class="check">
+                  <input id="mp-room-collisions" type="checkbox" checked>
+                  <span>Car collisions</span>
+                </label>
+              </div>
+              <div class="buttons buttons-row">
+                <button id="btn-mp-apply" class="btn">APPLY</button>
+                <button id="btn-mp-close-room" class="btn">CLOSE ROOM</button>
+              </div>
+            </div>
+          </div>
+          <div class="mp-col">
+            <h3 class="mp-sub">Chat</h3>
+            <ul class="mp-chat" id="mp-chat"></ul>
+            <form class="mp-chat-form" id="mp-chat-form">
+              <input id="mp-chat-input" maxlength="200" placeholder="Message (max 200)" autocomplete="off">
+              <button class="btn" id="btn-mp-chat-send" type="submit">SEND</button>
+            </form>
+            <p class="mp-hint" id="mp-ready-hint"></p>
+          </div>
+        </div>
+        <p id="mp-room-error" class="status bad hidden"></p>
+        <p id="mp-countdown" class="mp-count hidden"></p>
+        <div class="buttons">
+          <button id="btn-mp-room-back" class="btn">BACK TO ROOMS</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Leaderboard -->
+    <section class="overlay hidden" id="screen-leaderboard">
+      <div class="panel panel-wide">
+        <h2 class="panel-title">LEADERBOARD</h2>
+        <p id="lb-status" class="status"></p>
+        <div class="lb-modes" id="lb-modes"></div>
+        <div class="lb-tracks" id="lb-tracks"></div>
+        <div class="table-wrap">
+          <table class="lb">
+            <thead>
+              <tr><th>#</th><th>Pilot</th><th>Mode</th><th>Best lap</th><th>Total</th><th>Laps</th><th>Date</th></tr>
+            </thead>
+            <tbody id="lb-body"></tbody>
+          </table>
+        </div>
+        <div class="buttons">
+          <button id="btn-lb-refresh" class="btn">REFRESH</button>
+          <button id="btn-lb-close" class="btn btn-close" title="Close" aria-label="Close">✕</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Help -->
+    <section class="overlay hidden" id="screen-help">
+      <div class="panel">
+        <h2 class="panel-title">HOW TO PLAY</h2>
+        <div class="help-body">
+          <p><b>Goal:</b> complete the chosen number of laps as fast as you can. Your best lap goes to the leaderboard of the chosen track (VS BOTS mode).</p>
+          <p><b>Checkpoints:</b> every track has sectors marked with translucent lines across the road. A line disappears once you cross it, and all lines come back on each new lap. Pass them strictly in order — a missed sector keeps blinking red, and the lap does not count.</p>
+          <p><b>Bridge:</b> at the loop the road crosses over itself — the exit flies over the entry on a bridge.</p>
+          <p><b>Grass slows you down,</b> and tire posts bounce the car — stay on the asphalt.</p>
+          <table class="keys">
+            <tr><td>↑ / W</td><td>throttle</td></tr>
+            <tr><td>↓ / S</td><td>brake · reverse</td></tr>
+            <tr><td>← / → (A / D)</td><td>steering</td></tr>
+            <tr><td>Space</td><td>handbrake — drift</td></tr>
+            <tr><td>R</td><td>back on track</td></tr>
+            <tr><td>P / Esc</td><td>pause</td></tr>
+            <tr><td>M</td><td>sound on/off</td></tr>
+          </table>
+        </div>
+        <div class="buttons">
+          <button id="btn-help-close" class="btn btn-close" title="Close" aria-label="Close">✕</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pilot profile -->
+    <section class="overlay hidden" id="screen-profile">
+      <div class="panel">
+        <h2 class="panel-title">PILOT PROFILE</h2>
+        <p class="result-line">Pilot: <b id="profile-name">—</b></p>
+        <p class="result-line">Level <b id="profile-level">1</b> · progress <b id="profile-progress">0%</b></p>
+        <div class="level-bar"><span id="level-bar-fill"></span></div>
+        <p class="hint">Levels and XP are coming in a future update.</p>
+        <div class="buttons">
+          <button id="btn-logout" class="btn btn-primary">LOG OUT</button>
+          <button id="btn-profile-close" class="btn btn-close" title="Close" aria-label="Close">✕</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Race results -->
+    <section class="overlay hidden" id="screen-results">
+      <div class="panel">
+        <h2 class="panel-title">RACE COMPLETE!</h2>
+        <div class="res-grid">
+          <p class="result-line">Best lap: <b id="res-best">—</b></p>
+          <p class="result-line">Total (<span id="res-total-label">3 laps</span>): <b id="res-total">—</b></p>
+          <p class="result-line">Average lap: <b id="res-avg">—</b></p>
+        </div>
+        <p id="res-laps" class="res-laps"></p>
+        <div class="table-wrap standings hidden" id="standings-wrap">
+          <table class="lb">
+            <thead>
+              <tr><th>#</th><th>Pilot</th><th>Best lap</th></tr>
+            </thead>
+            <tbody id="standings-body"></tbody>
+          </table>
+        </div>
+        <p id="res-place" class="place"></p>
+        <p id="res-mp-note" class="mp-result-note hidden"></p>
+        <div class="buttons">
+          <button id="btn-res-submit" class="btn btn-primary">SEND TO LEADERBOARD</button>
+          <button id="btn-res-again" class="btn">RACE AGAIN</button>
+          <button id="btn-res-menu" class="btn">MAIN MENU</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sound panel: music and game sounds have separate levels -->
+  <section class="overlay hidden" id="screen-sound">
+    <div class="panel">
+      <h2 class="panel-title">SOUND</h2>
+      <label class="field">
+        <span>Music</span>
+        <input id="vol-music" type="range" min="0" max="100" step="1" value="50">
+        <small class="laps-hint" id="vol-music-label">50%</small>
+      </label>
+      <label class="field">
+        <span>Game sounds</span>
+        <input id="vol-sfx" type="range" min="0" max="100" step="1" value="80">
+        <small class="laps-hint" id="vol-sfx-label">80%</small>
+      </label>
+      <div class="buttons buttons-row">
+        <button id="btn-sound-mute" class="btn">MUTE ALL</button>
+        <button id="btn-sound-close" class="btn btn-close" title="Close" aria-label="Close">✕</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Version / changelog -->
+  <section class="overlay hidden" id="screen-version">
+    <div class="panel">
+      <h2 class="panel-title">WHAT'S NEW</h2>
+      <p class="result-line">RETRO RALLY <b id="version-current">v0.5.6</b></p>
+      <div class="help-body changelog" id="changelog"></div>
+      <div class="buttons">
+        <button id="btn-version-close" class="btn btn-close" title="Close" aria-label="Close">✕</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pause -->
+    <section class="overlay hidden" id="screen-pause">
+      <div class="panel">
+        <h2 class="panel-title">PAUSED</h2>
+        <div class="buttons buttons-row">
+          <button id="btn-pause-resume" class="btn btn-primary">RESUME</button>
+          <button id="btn-pause-restart" class="btn">RESTART</button>
+          <button id="btn-pause-menu" class="btn">MAIN MENU</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Corner buttons: leaderboard and help (?) -->
+  <div id="corner-buttons" class="hidden">
+    <button id="btn-leaderboard" class="btn btn-icon" title="Leaderboard" aria-label="Leaderboard">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <rect x="3" y="12" width="5" height="9" rx="1"></rect>
+        <rect x="9.5" y="5" width="5" height="16" rx="1"></rect>
+        <rect x="16" y="15" width="5" height="6" rx="1"></rect>
+      </svg>
+    </button>
+    <button id="btn-help" class="btn btn-icon" title="How to play" aria-label="How to play">?</button>
+    <button id="btn-sound" class="btn btn-icon" title="Sound: on" aria-label="Sound on">🔊</button>
+    <button id="btn-version" class="btn btn-icon btn-version" title="Version and changes" aria-label="Version and changes">v0.5.6</button>
+  </div>
+
+  <!-- Pilot profile chip, top left -->
+  <div id="profile-chip" class="hidden">
+    <button id="btn-profile" class="chip">
+      <span class="avatar" id="avatar-initial">R</span>
+      <span class="chip-info">
+        <span class="chip-name" id="chip-name">Racer</span>
+        <span class="chip-level" id="chip-level">LVL 1 · 0%</span>
+        <span class="chip-bar"><span class="chip-bar-fill" id="chip-bar-fill"></span></span>
+      </span>
+    </button>
+  </div>
+
+  <!-- FPS counter: F3 key or ?fps=1 in the URL -->
+  <div id="fps-chip" class="hidden"></div>
+
+  <script type="module" src="js/main.js?v=25"></script>
+</body>
+</html>

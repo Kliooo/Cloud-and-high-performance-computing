@@ -1,0 +1,7 @@
+**/data/
+docs/
+tools/
+*.zip
+*.tar.gz
+*.bat
+README.md

@@ -1,0 +1,16 @@
+# Runtime data: leaderboard, pilot registry and the generated admin key
+data/
+
+# Local artifacts
+*.zip
+*.tar.gz
+srv-out.txt
+srv-err.txt
+node_modules/
+.env
+
+# Editors / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

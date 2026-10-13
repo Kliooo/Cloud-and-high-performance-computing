@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RETRO RALLY — admin panel</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root { --paper:#F7EBD3; --ink:#2B2118; --racing:#E8542F; --gold:#F2B33D; --grass:#8AB653; --panel:#FFF8EC; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font-family:"Segoe UI", system-ui, sans-serif; line-height:1.5; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 24px 18px 60px; }
+    header { background:var(--panel); border:3px solid var(--ink); border-radius:14px; box-shadow:8px 8px 0 var(--ink); padding:18px 22px; margin-bottom:20px; display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between; }
+    h1 { font-family:"Arial Black","Segoe UI",sans-serif; font-size:26px; margin:0; color:var(--racing); text-shadow:2px 2px 0 var(--gold); }
+    .key-box { display:flex; gap:8px; align-items:center; }
+    input[type=password], input[type=text] { font-family:Consolas,monospace; font-size:14px; padding:8px 10px; border:3px solid var(--ink); border-radius:9px; background:var(--paper); color:var(--ink); }
+    button { font-family:"Arial Black","Segoe UI",sans-serif; font-size:14px; padding:9px 16px; border:3px solid var(--ink); border-radius:10px; background:var(--gold); color:var(--ink); cursor:pointer; box-shadow:4px 4px 0 var(--ink); }
+    button:active { transform:translate(2px,2px); box-shadow:2px 2px 0 var(--ink); }
+    h2 { font-family:"Arial Black","Segoe UI",sans-serif; font-size:17px; margin:22px 0 8px; padding:5px 12px; display:inline-block; background:var(--gold); border:3px solid var(--ink); border-radius:9px; box-shadow:4px 4px 0 var(--ink); }
+    table { width:100%; border-collapse:collapse; background:var(--panel); border:3px solid var(--ink); border-radius:11px; overflow:hidden; }
+    th { background:var(--gold); font-size:12px; text-align:left; padding:7px 9px; border-bottom:3px solid var(--ink); text-transform:uppercase; letter-spacing:.5px; }
+    td { padding:6px 9px; border-bottom:2px solid rgba(43,33,24,.14); font-size:13.5px; vertical-align:top; }
+    tr:last-child td { border-bottom:none; }
+    code { font-family:Consolas,monospace; background:rgba(43,33,24,.08); padding:1px 5px; border-radius:5px; font-size:12.5px; }
+    .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; }
+    .card { background:var(--panel); border:3px solid var(--ink); border-radius:12px; box-shadow:5px 5px 0 rgba(43,33,24,.9); padding:12px 14px; }
+    .card b { display:block; font-size:22px; font-family:"Arial Black",sans-serif; color:var(--racing); }
+    .card span { font-size:12px; text-transform:uppercase; letter-spacing:1px; opacity:.8; }
+    .pill { display:inline-block; padding:1px 8px; border:2px solid var(--ink); border-radius:999px; font-size:11px; font-weight:700; background:var(--paper); }
+    .pill.on { background:var(--grass); }
+    .pill.off { background:#e6c7a5; }
+    .status { font-size:13px; font-weight:700; }
+    .status.bad { color:var(--racing); }
+    .muted { opacity:.7; font-size:12.5px; }
+    .hidden { display:none !important; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>RETRO RALLY — ADMIN</h1>
+      <p class="muted" id="whoami">The access key comes from the server log or from ADMIN_KEY</p>
+    </div>
+    <div class="key-box">
+      <input id="admin-key" type="password" placeholder="admin key" autocomplete="off" spellcheck="false">
+      <button id="btn-connect">CONNECT</button>
+      <button id="btn-refresh">REFRESH</button>
+    </div>
+  </header>
+
+  <p class="status" id="admin-status">Enter the admin key.</p>
+
+  <h2>Server</h2>
+  <div class="cards" id="server-cards"></div>
+
+  <h2>Online now</h2>
+  <table>
+    <thead><tr><th>Pilot</th><th>ID</th><th>Connections</th><th>Room</th><th>Phase</th><th>Ready</th><th>Finished</th></tr></thead>
+    <tbody id="online-body"></tbody>
+  </table>
+
+  <h2>Rooms</h2>
+  <table>
+    <thead><tr><th>Room</th><th>Host</th><th>Players</th><th>Track</th><th>Laps</th><th>Bots</th><th>Lock</th><th>Phase</th><th>Chat</th></tr></thead>
+    <tbody id="rooms-body"></tbody>
+  </table>
+
+  <h2>Registered pilots</h2>
+  <table>
+    <thead><tr><th>Pilot</th><th>Registered</th><th>Last seen</th><th>Logins</th><th>Source</th></tr></thead>
+    <tbody id="pilots-body"></tbody>
+  </table>
+
+  <h2>Results</h2>
+  <div class="cards" id="results-cards"></div>
+
+  <p class="muted" id="updated-at"></p>
+</div>
+<script type="module" src="js/admin.js?v=2"></script>
+</body>
+</html>

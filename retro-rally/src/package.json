@@ -1,0 +1,14 @@
+{
+  "name": "retro-rally",
+  "version": "0.5.6",
+  "private": true,
+  "description": "Retro racing game with a leaderboard — a prototype for deploying to a cloud VM",
+  "scripts": {
+    "start": "node server.js",
+    "selftest": "node ../tools/selftest.js",
+    "verify": "node ../tools/verify.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

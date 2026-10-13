@@ -1,0 +1,1204 @@
+/* RETRO RALLY — "08 Resn" preset style: warm illustrative warmth, thick outlines, hard shadows. */
+
+:root {
+  --paper: #f7ebd3;
+  --ink: #2b2118;
+  --racing: #e8542f;
+  --gold: #f2b33d;
+  --panel: #fff8ec;
+  --grass: #8ab653;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--ink);
+  font-family: "Arial Black", "Segoe UI", system-ui, sans-serif;
+}
+
+#stage {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#game {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ---------- Overlays ---------- */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(43, 33, 24, 0.45);
+}
+
+.overlay.hidden {
+  display: none;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.btn-close {
+  min-width: 52px;
+  padding: 12px 16px;
+  background: var(--panel);
+}
+
+.panel {
+  background: var(--panel);
+  border: 3px solid var(--ink);
+  border-radius: 18px;
+  box-shadow: 10px 10px 0 rgba(43, 33, 24, 0.9);
+  padding: 26px 34px;
+  text-align: center;
+  width: min(92vw, 560px);
+  max-height: 92vh;
+  overflow: auto;
+}
+
+.panel-wide {
+  width: min(94vw, 760px);
+}
+
+.panel-title {
+  margin: 0 0 10px;
+  font-size: 30px;
+  letter-spacing: 2px;
+  color: var(--racing);
+  text-shadow: 2px 2px 0 var(--gold);
+  transform: rotate(-1deg);
+}
+
+.game-title {
+  margin: 0;
+  font-size: clamp(40px, 7vw, 66px);
+  letter-spacing: 3px;
+  color: var(--racing);
+  -webkit-text-stroke: 2px var(--ink);
+  text-shadow: 4px 4px 0 var(--gold), 8px 8px 0 var(--ink);
+  transform: rotate(-2deg);
+}
+
+.game-subtitle {
+  margin: 14px 0 4px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* ---------- Buttons and fields ---------- */
+
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin: 16px 0 6px;
+}
+
+.btn {
+  font-family: "Arial Black", "Segoe UI", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--gold);
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  padding: 12px 22px;
+  cursor: pointer;
+  box-shadow: 5px 5px 0 var(--ink);
+  transition: transform 0.06s ease, box-shadow 0.06s ease;
+}
+
+.btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--ink);
+}
+
+.btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+.btn-primary {
+  background: var(--racing);
+  color: var(--paper);
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 14px 0 4px;
+}
+
+.field span {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.field input,
+.field select {
+  width: 280px;
+  max-width: 80vw;
+  padding: 10px 14px;
+  text-align: center;
+  font-family: "Arial Black", "Segoe UI", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--ink);
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: 10px;
+  outline: none;
+}
+
+.field input:focus,
+.field select:focus {
+  box-shadow: 4px 4px 0 var(--gold);
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 12px 0 4px;
+  cursor: pointer;
+}
+
+.check input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--racing);
+  cursor: pointer;
+}
+
+.check span {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.buttons-row {
+  flex-wrap: nowrap;
+}
+
+.buttons-row .btn {
+  padding: 10px 14px;
+  font-size: 15px;
+}
+
+#corner-buttons {
+  position: absolute;
+  right: 22px;
+  bottom: 22px;
+  display: flex;
+  gap: 10px;
+  z-index: 40;
+}
+
+.btn-icon {
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  border-radius: 14px;
+}
+
+.btn-icon svg {
+  fill: var(--ink);
+}
+
+/* ---------- Profile and password ---------- */
+
+.pass-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.pass-wrap input {
+  padding-left: 46px;
+  padding-right: 46px;
+}
+
+/* hide the browser reveal icon so the field does not shift */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
+.track-field select {
+  width: 320px;
+  max-width: 82vw;
+  padding: 10px 14px;
+  text-align: center;
+  font-family: "Arial Black", "Segoe UI", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 17px;
+  color: var(--ink);
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: 10px;
+  cursor: pointer;
+  outline: none;
+}
+
+.track-field select:focus {
+  box-shadow: 4px 4px 0 var(--gold);
+}
+
+.track-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 0 2px;
+}
+
+.tc-label {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 800;
+  opacity: 0.75;
+}
+
+.eye {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  opacity: 0.65;
+}
+
+.eye:hover {
+  opacity: 1;
+  background: rgba(43, 33, 24, 0.08);
+}
+
+.eye svg {
+  fill: var(--ink);
+}
+
+.link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 800;
+  color: var(--racing);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+#profile-chip {
+  position: absolute;
+  left: 22px;
+  top: 22px;
+  z-index: 40;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px 8px 8px;
+  background: var(--panel);
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  box-shadow: 5px 5px 0 var(--ink);
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--ink);
+}
+
+.chip:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--ink);
+}
+
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--racing);
+  color: var(--paper);
+  border: 2.5px solid var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Arial Black", "Segoe UI", system-ui, sans-serif;
+  font-size: 18px;
+}
+
+.chip-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.chip-name {
+  font-family: "Arial Black", "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.chip-level {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+.chip-bar {
+  display: block;
+  width: 92px;
+  height: 6px;
+  background: rgba(43, 33, 24, 0.18);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.chip-bar-fill {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--grass);
+}
+
+.level-bar {
+  width: 100%;
+  height: 14px;
+  background: rgba(43, 33, 24, 0.15);
+  border: 3px solid var(--ink);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 10px 0 6px;
+}
+
+.level-bar span {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--grass);
+}
+
+.mp-text {
+  font-family: "Arial Black", "Segoe UI", system-ui, sans-serif;
+  font-size: 34px;
+  letter-spacing: 3px;
+  color: var(--racing);
+  text-shadow: 3px 3px 0 var(--gold);
+  margin: 18px 0;
+  transform: rotate(-1deg);
+}
+
+.hint {
+  margin: 12px 0 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  opacity: 0.75;
+}
+
+.srv {
+  margin: 8px 0 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #3e6b3a;
+}
+
+.srv.bad {
+  color: var(--racing);
+}
+
+/* ---------- Leaderboard ---------- */
+
+.status {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  margin: 4px 0 10px;
+}
+
+.status.bad {
+  color: var(--racing);
+}
+
+.table-wrap {
+  max-height: 44vh;
+  overflow: auto;
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+}
+
+.standings {
+  max-height: none;
+  margin: 10px 0;
+}
+
+table.lb {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  background: var(--panel);
+}
+
+.lb th {
+  position: sticky;
+  top: 0;
+  background: var(--gold);
+  font-family: "Arial Black", "Segoe UI", system-ui, sans-serif;
+  font-size: 11.5px;
+  letter-spacing: 1px;
+  padding: 8px;
+  border-bottom: 3px solid var(--ink);
+}
+
+.lb td {
+  padding: 7px 8px;
+  border-bottom: 2px solid rgba(43, 33, 24, 0.14);
+}
+
+.lb tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.lb tr.me td {
+  background: rgba(242, 179, 61, 0.5);
+  font-weight: 700;
+}
+
+/* ---------- Results and help ---------- */
+
+.res-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.result-line {
+  margin: 4px 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.result-line b {
+  font-family: "Arial Black", "Segoe UI", system-ui, sans-serif;
+  color: var(--racing);
+}
+
+.res-laps {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.8;
+  margin: 6px 0;
+}
+
+.place {
+  min-height: 20px;
+  margin: 4px 0;
+  font-family: "Arial Black", "Segoe UI", system-ui, sans-serif;
+  font-size: 15px;
+  color: #3e6b3a;
+}
+
+.help-body {
+  text-align: left;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 14.5px;
+  font-weight: 500;
+}
+
+.help-body p {
+  margin: 8px 0;
+}
+
+table.keys {
+  margin: 10px auto 0;
+  border-collapse: collapse;
+}
+
+table.keys td {
+  padding: 3px 12px;
+  border-bottom: 2px solid rgba(43, 33, 24, 0.12);
+}
+
+table.keys td:first-child {
+  font-family: "Arial Black", "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+}
+
+/* Track switcher in the leaderboard */
+.lb-tracks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.lb-tracks .tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: inherit;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 6px 14px;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.lb-tracks .tab:hover {
+  background: #f7c765;
+}
+
+.lb-tracks .tab.active {
+  background: var(--gold);
+}
+
+.lb-tracks .tab .count {
+  font-size: 11px;
+  line-height: 1;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(43, 33, 24, 0.14);
+}
+
+.lb-tracks .tab.active .count {
+  background: rgba(43, 33, 24, 0.2);
+}
+
+/* Lap count input */
+.field input.laps-input {
+  width: 150px;
+  font-size: 22px;
+}
+
+.laps-hint {
+  font-size: 11px;
+  letter-spacing: 2px;
+  opacity: 0.65;
+}
+
+.laps-input::-webkit-outer-spin-button,
+.laps-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.laps-input {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* ---------- Multiplayer: room list ---------- */
+
+.mp-net {
+  margin: 2px 0 10px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #3e6b3a;
+}
+
+.mp-net.bad {
+  color: var(--racing);
+}
+
+.mp-list-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin: 6px 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.mp-rooms-wrap {
+  max-height: 42vh;
+}
+
+table.mp-rooms td {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+table.mp-rooms tbody tr {
+  cursor: pointer;
+}
+
+table.mp-rooms tbody tr:hover td {
+  background: rgba(242, 179, 61, 0.35);
+}
+
+table.mp-rooms tbody tr.full td {
+  opacity: 0.6;
+  cursor: default;
+}
+
+table.mp-rooms td.mp-room-name {
+  font-family: "Arial Black", "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  text-align: left;
+}
+
+.mp-rooms .mp-lock-col,
+.mp-rooms td.mp-lock {
+  text-align: right;
+  width: 64px;
+  white-space: nowrap;
+}
+
+.mp-lock {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.mp-lock.closed {
+  color: var(--racing);
+}
+
+.mp-empty {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.7;
+  padding: 14px 0;
+}
+
+.mp-join {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border: 3px dashed var(--ink);
+  border-radius: 12px;
+  background: rgba(242, 179, 61, 0.18);
+}
+
+.mp-join-title {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.mp-join .field input {
+  width: 200px;
+  font-size: 18px;
+}
+
+/* ---------- Multiplayer: room lobby ---------- */
+
+.mp-cols {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.mp-col {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.mp-col:first-child {
+  flex: 1 1 46%;
+}
+
+.mp-sub {
+  margin: 4px 0 8px;
+  font-family: "Arial Black", "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--racing);
+}
+
+.mp-players,
+.mp-chat {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  background: var(--panel);
+  overflow: auto;
+}
+
+.mp-players {
+  max-height: 190px;
+}
+
+.mp-chat {
+  height: 190px;
+  padding: 8px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  background: var(--paper);
+}
+
+.mp-player {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 2px solid rgba(43, 33, 24, 0.12);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.mp-player:last-child {
+  border-bottom: none;
+}
+
+.mp-player.me {
+  background: rgba(242, 179, 61, 0.35);
+}
+
+.mp-player.offline {
+  opacity: 0.55;
+}
+
+.mp-player .mp-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 2px solid var(--ink);
+  flex: 0 0 auto;
+}
+
+.mp-player .mp-pname {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mp-badge {
+  font-family: "Arial Black", "Segoe UI", system-ui, sans-serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--panel);
+  white-space: nowrap;
+}
+
+.mp-badge.ready {
+  background: var(--grass);
+}
+
+.mp-badge.waiting {
+  background: var(--paper);
+  opacity: 0.75;
+}
+
+.mp-badge.host {
+  background: var(--gold);
+}
+
+.mp-badge.you {
+  background: var(--racing);
+  color: var(--paper);
+}
+
+.mp-kick {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  background: var(--panel);
+  cursor: pointer;
+}
+
+.mp-kick:hover {
+  background: var(--racing);
+  color: var(--paper);
+}
+
+.mp-settings {
+  margin: 8px 0 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.mp-host {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border: 3px dashed var(--ink);
+  border-radius: 12px;
+  background: rgba(138, 182, 83, 0.16);
+}
+
+.mp-host .field,
+.mp-host .check {
+  margin: 6px 0;
+}
+
+.mp-host .field input,
+.mp-host .field select {
+  width: 200px;
+  font-size: 16px;
+}
+
+.mp-chat-line {
+  margin: 0 0 5px;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+.mp-chat-line.system {
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.mp-chat-time {
+  font-size: 11px;
+  opacity: 0.7;
+  margin-right: 6px;
+}
+
+.mp-chat-name {
+  font-weight: 800;
+  color: var(--racing);
+  margin-right: 6px;
+}
+
+.mp-chat-form {
+  display: flex;
+  gap: 8px;
+  margin: 8px 0 0;
+}
+
+.mp-chat-form input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 8px 12px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: 10px;
+  outline: none;
+}
+
+.mp-chat-form .btn {
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+.mp-hint {
+  margin: 8px 0 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  opacity: 0.8;
+  min-height: 18px;
+}
+
+.mp-count {
+  margin: 6px 0 0;
+  font-family: "Arial Black", "Segoe UI", system-ui, sans-serif;
+  font-size: 44px;
+  letter-spacing: 4px;
+  color: var(--racing);
+  text-shadow: 3px 3px 0 var(--gold);
+}
+
+/* ---------- Multiplayer: race result ---------- */
+
+.mp-result-note {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0.85;
+  margin: 6px 0;
+}
+
+/* Mode badge in the leaderboard */
+.mode-tag {
+  display: inline-block;
+  font-family: "Arial Black", "Segoe UI", system-ui, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.mode-tag.training {
+  background: var(--paper);
+}
+
+.mode-tag.bots {
+  background: var(--gold);
+}
+
+.mode-tag.multiplayer {
+  background: var(--grass);
+}
+
+/* Mode filter in the leaderboard */
+.lb-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+
+.lb-modes .tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: inherit;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 6px 14px;
+  border: 2.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.lb-modes .tab:hover {
+  background: #f7c765;
+}
+
+.lb-modes .tab.active {
+  background: var(--racing);
+  color: var(--paper);
+}
+
+.lb-modes .tab .count {
+  font-size: 11px;
+  line-height: 1;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(43, 33, 24, 0.14);
+}
+
+/* ---------- Form layout: even field grid ---------- */
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+  align-items: start;
+  grid-auto-rows: minmax(88px, auto);
+  margin: 14px 0 6px;
+}
+
+.field-grid .field,
+.field-grid .track-field {
+  margin: 0;
+  align-items: stretch;
+  justify-content: flex-start;
+  height: 100%;
+}
+
+.field-grid .field select {
+  text-align: center;
+}
+
+.field-grid .field span {
+  text-align: left;
+}
+
+.field-grid .field input,
+.field-grid .field select,
+.field-grid .track-field select,
+.field-grid .field input.laps-input {
+  width: 100%;
+  max-width: none;
+}
+
+.field-grid .check {
+  grid-column: 1 / -1;
+  justify-content: flex-start;
+  margin: 0;
+  align-self: center;
+}
+
+.field-grid .laps-hint {
+  min-height: 14px;
+}
+
+/* In host and single player settings a checkbox takes the row's second cell, not the whole row */
+.field-grid-inline .check {
+  grid-column: auto;
+  align-self: center;
+}
+
+/* ---------- FPS counter (F3 or ?fps=1) ---------- */
+
+#fps-chip {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  z-index: 40;
+  padding: 6px 10px;
+  border: 2.5px solid var(--ink);
+  border-radius: 10px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: Consolas, "Cascadia Mono", monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+}
+
+.field-grid .check span {
+  text-align: left;
+}
+
+@media (max-width: 560px) {
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Sound and version buttons ---------- */
+
+/* ---------- Sound panel ---------- */
+
+.field input[type="range"] {
+  width: 260px;
+  max-width: 76vw;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  accent-color: var(--racing);
+  cursor: pointer;
+}
+
+.field input[type="range"]:focus {
+  box-shadow: none;
+}
+
+.btn-icon.muted {
+  opacity: 0.55;
+  background: var(--paper);
+}
+
+.btn-version {
+  font-family: "Arial Black", "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  letter-spacing: 0;
+}
+
+/* ---------- Changelog ---------- */
+
+.changelog {
+  text-align: left;
+  max-height: 46vh;
+  overflow: auto;
+}
+
+.changelog .ver {
+  margin: 14px 0 4px;
+  font-family: "Arial Black", "Segoe UI", system-ui, sans-serif;
+  font-size: 15px;
+  letter-spacing: 1px;
+  color: var(--racing);
+}
+
+.changelog .ver span {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  font-size: 12px;
+  letter-spacing: 0;
+  opacity: 0.7;
+  color: var(--ink);
+}
+
+.changelog ul {
+  margin: 2px 0 0 18px;
+}
+
+.changelog li {
+  font-size: 13.5px;
+  margin: 2px 0;
+}
+
+.changelog .current {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--grass);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
