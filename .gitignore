@@ -1,0 +1,13 @@
+# Local environment files and secrets
+.env
+**/.env
+
+# Python
+__pycache__/
+*.py[cod]
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,62 @@
+# Two containers on a shared Docker network: db stores the data, api is the entry point.
+# Database files live in a named volume, so they survive container restarts.
+# Requires Docker Compose v2 (the `docker compose` command). No configuration needed to start.
+
+name: containers-basics
+
+services:
+
+  db:
+    build:
+      context: ./db
+    image: ${DOCKERHUB_USER:-local}/containers-basics-db:1.0.0
+    container_name: containers-basics-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-appdb}
+      POSTGRES_USER: ${POSTGRES_USER:-appuser}
+      # No password on purpose: this port is never published, the database is reachable only
+      # inside the Docker network, so the demo runs with "trust" auth and starts with one command.
+      # For anything beyond a local demo: drop this line and provide a password instead.
+      POSTGRES_HOST_AUTH_METHOD: trust
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      # Data volume: survives restart, stop, down and rebuilds; removed only by `down -v`.
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+    # No port published: the database is reachable only inside the Docker network.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./api
+    image: ${DOCKERHUB_USER:-local}/containers-basics-api:1.0.0
+    container_name: containers-basics-api
+    environment:
+      DB_HOST: db     # service name: resolves to the container IP inside the network
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-appdb}
+      DB_USER: ${POSTGRES_USER:-appuser}
+    ports:
+      - "${API_PORT:-8000}:8000"   # only the entry point is published
+    networks:
+      - backend
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  backend:
+    name: containers-basics-net
+    driver: bridge
+
+volumes:
+  pgdata:
+    name: containers-basics-pgdata

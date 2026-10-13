@@ -1,0 +1,2 @@
+# Enforce LF line endings: otherwise scripts/demo.sh breaks in bash after a Windows checkout.
+* text=auto eol=lf
