@@ -1,11 +1,12 @@
-# deploy-cloudru.ps1 — upload the project to a cloud.ru VM and restart the service.
+# deploy.ps1 - upload the project to a Linux VM and restart the service.
+# Provider-agnostic: any VPS reachable over SSH will do.
 #
 # Example:
-#   .\deploy-cloudru.ps1 -Server 203.0.113.10
-#   .\deploy-cloudru.ps1 -Server 203.0.113.10 -User ubuntu -RemoteDir /opt/retro-rally
+#   .\deploy.ps1 -Server 203.0.113.10
+#   .\deploy.ps1 -Server 203.0.113.10 -User retro -RemoteDir /opt/retro-rally
 #
 # What it does:
-#   1) packs the code (without data/ — server-side data is left untouched);
+#   1) packs the code (without src/data/ - server-side data is left untouched);
 #   2) copies the archive over scp into a temp directory;
 #   3) unpacks over the project and restarts the retro-rally systemd service.
 

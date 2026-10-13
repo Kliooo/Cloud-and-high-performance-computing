@@ -68,16 +68,14 @@ The game is deployed on a **cloud.ru** virtual machine (Ubuntu, nginx in front o
 nginx serves the static game from `src/public/` and proxies `/api/` to the Node service on
 `127.0.0.1:8080`, so runtime data stays unreachable from outside.
 
+* step-by-step runbook: [deploy/RUNBOOK.md](deploy/RUNBOOK.md) (any Linux VPS — nginx + systemd)
 * systemd unit: [deploy/retro-rally.service](deploy/retro-rally.service)
 * nginx config: [deploy/nginx-retro-rally.conf](deploy/nginx-retro-rally.conf)
-* one-command deploy script: [deploy/deploy-cloudru.ps1](deploy/deploy-cloudru.ps1)
+* one-command deploy script: [deploy/deploy.ps1](deploy/deploy.ps1)
 * container image: [deploy/Dockerfile](deploy/Dockerfile)
 
 Everything needed on the VM lives in `deploy/`. The container build uses the project root as
 context: `docker build -f deploy/Dockerfile -t retro-rally .`
-
-The runbook for the VM setup (SSH keys, security group, nginx + systemd wiring, HTTPS,
-daily backup) is kept outside the repo alongside the assignment write-up.
 
 ![Multiplayer lobby](docs/screenshots/multiplayer.png)
 
@@ -106,7 +104,7 @@ retro-rally/
 │   ├── data/            # runtime data, created on first start (not in git)
 │   └── package.json     # npm scripts
 ├── tools/               # selftest, integration verify, headless browser checks
-├── deploy/              # everything needed on the VM: systemd, nginx, Dockerfile, deploy script
+├── deploy/              # runbook, nginx, systemd, Dockerfile, deploy script — everything for the VM
 ├── docs/screenshots/    # screenshots used by this README
 ├── .dockerignore
 └── .gitignore

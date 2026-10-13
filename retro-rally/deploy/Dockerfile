@@ -1,4 +1,4 @@
-# RETRO RALLY — image for container hosting (cloud.ru Container Apps and similar)
+# RETRO RALLY — image for container hosting (any Docker-compatible platform)
 # Build:    docker build -f deploy/Dockerfile -t retro-rally .
 # Run:      docker run -p 8080:8080 -e ADMIN_KEY=your-own-key retro-rally
 # Data files (results.json, pilots.json, admin-key.txt) are created in /app/data —
