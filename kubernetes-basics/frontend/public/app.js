@@ -115,12 +115,12 @@ function addRow(data) {
 }
 
 function renderFacts() {
-  els.frontendPod.textContent = state.frontendPod || 'РІР‚вЂќ';
+  els.frontendPod.textContent = state.frontendPod || '—';
   els.podCount.textContent = String(state.perPod.size);
   els.reqCount.textContent = state.sent.toLocaleString('en-US');
 
   const p95 = percentile(state.latencies, 95);
-  els.p95.textContent = p95 === null ? 'РІР‚вЂќ' : `${p95.toFixed(0)} ms`;
+  els.p95.textContent = p95 === null ? '—' : `${p95.toFixed(0)} ms`;
   els.buildInfo.textContent = state.version ? `backend v${state.version}` : 'backend';
 }
 
@@ -197,7 +197,7 @@ function recordFailure() {
 async function sendBurst(count) {
   if (state.busy) return;
   setBusy(true);
-  setStatus('ok', 'sending requestsРІР‚В¦');
+  setStatus('ok', 'sending requests…');
   showProgress(0, `0 / ${count}`);
 
   const batchSize = 5;
@@ -220,7 +220,7 @@ async function sendBurst(count) {
     }
 
     if (state.failed > 0) {
-      setStatus('error', `${count} sent Р’В· ${state.failed} failed`);
+      setStatus('error', `${count} sent · ${state.failed} failed`);
     } else {
       setStatus('ok', `${count} requests answered`);
     }
@@ -228,7 +228,9 @@ async function sendBurst(count) {
     setStatus('error', 'backend unreachable');
   } finally {
     setBusy(false);
-    hideProgressSoon();
+    // The pill already says how many requests were answered; an empty progress
+    // track afterwards only adds noise.
+    els.progress.hidden = true;
   }
 }
 
@@ -236,7 +238,7 @@ function stopLoad() {
   if (!state.loadController) return;
   state.loadController.abort();
   state.loadController = null;
-  els.loadBtn.textContent = 'Load CPU Р’В· 30 s';
+  els.loadBtn.textContent = 'Load CPU · 30 s';
   els.loadBtn.classList.remove('running');
 }
 
@@ -253,7 +255,7 @@ async function startLoad() {
   let requests = 0;
 
   els.loadBtn.textContent = 'Stop load';
-  setStatus('ok', 'CPU load in progressРІР‚В¦');
+  setStatus('ok', 'CPU load in progress…');
   showProgress(0, '0 requests');
 
   const worker = async () => {
@@ -273,7 +275,7 @@ async function startLoad() {
 
   const ticker = setInterval(() => {
     const left = Math.max(0, deadline - Date.now());
-    showProgress(1 - left / (LOAD_SECONDS * 1000), `${requests} CPU requests Р’В· ${Math.ceil(left / 1000)} s left`);
+    showProgress(1 - left / (LOAD_SECONDS * 1000), `${requests} CPU requests · ${Math.ceil(left / 1000)} s left`);
   }, 500);
 
   try {
@@ -282,8 +284,8 @@ async function startLoad() {
     clearInterval(ticker);
     if (state.loadController === controller) {
       state.loadController = null;
-      els.loadBtn.textContent = 'Load CPU Р’В· 30 s';
-      setStatus('ok', `CPU load finished Р’В· ${requests} requests`);
+      els.loadBtn.textContent = 'Load CPU · 30 s';
+      setStatus('ok', `CPU load finished · ${requests} requests`);
       hideProgressSoon();
     }
   }
@@ -301,21 +303,25 @@ function resetAll() {
   state.failed = 0;
   state.frontendPod = null;
 
-  els.logBody.innerHTML = '<tr class="empty"><td colspan="4">Waiting for trafficРІР‚В¦</td></tr>';
+  els.logBody.innerHTML = '<tr class="empty"><td colspan="4">Waiting for traffic…</td></tr>';
   renderFacts();
   renderBars();
   hideProgressSoon();
-  setStatus('pending', 'checking backendРІР‚В¦');
+  setStatus('pending', 'checking backend…');
   bootstrap();
 }
 
 async function bootstrap() {
   try {
     const data = await pingOnce();
-    record(data);
-    setStatus('ok', `backend ${data.version} Р’В· ${data.pod}`);
+    // The page-load health check is not counted as traffic: the counters must
+    // match what the buttons actually sent.
+    state.frontendPod = data.frontendPod || state.frontendPod;
+    state.version = data.version || state.version;
+    renderFacts();
+    setStatus('ok', `backend ${data.version} · ${data.pod}`);
   } catch (error) {
-    setStatus('error', 'backend unreachable РІР‚вЂќ check pods');
+    setStatus('error', 'backend unreachable — check pods');
   }
 }
 
@@ -338,7 +344,7 @@ els.autoToggle.addEventListener('change', () => {
       record(await pingOnce());
       setStatus('ok', 'auto ping running');
     } catch (error) {
-      setStatus('error', 'backend unreachable РІР‚вЂќ check pods');
+      setStatus('error', 'backend unreachable — check pods');
     }
   }, 2000);
 });
