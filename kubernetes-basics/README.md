@@ -5,7 +5,7 @@ A two-tier demo deployed to Kubernetes: a **replicated Node.js backend** behind 
 address usable from outside the cluster. The page shows which backend pod answered each request,
 which makes Service load balancing and HPA scaling visible instead of theoretical.
 
-**Live:** <http://176.109.100.164/k8s-demo/> · cluster: k3s v1.36.5, 2 vCPU / 4 GB Ubuntu 22.04 VM
+**Live:** <http://176.109.100.164:8081/> · cluster: k3s v1.36.5, 2 vCPU / 4 GB Ubuntu 22.04 VM
 
 ```
 Internet ──▶ Service frontend (LoadBalancer :8081) ──▶ 2 × nginx pods
@@ -176,19 +176,15 @@ kubectl -n k8s-demo port-forward svc/frontend 8080:8081   # reach it without the
 
 ## How the live deployment is published
 
-The frontend Service gets a real external address (`EXTERNAL-IP 176.109.100.164`, port 8081).
-The cloud provider, however, forwards only port 80 to this VM, so the same nginx that serves the
-first assignment proxies a path to the Service:
+The frontend Service is a `LoadBalancer` and gets a real external address
+(`EXTERNAL-IP 176.109.100.164`), which the provider publishes on port 8081:
+<http://176.109.100.164:8081/>. Nothing on the VM proxies that traffic — it goes through the k3s
+ServiceLB to the nginx pods.
 
-```nginx
-location /k8s-demo/ {
-    proxy_pass http://127.0.0.1:8081/;
-}
-```
-
-Public URL: <http://176.109.100.164/k8s-demo/>. The frontend uses relative URLs, so one image works
-both at the Service root and under the path prefix. Details and the provider limitation:
-[docs/architecture.md](docs/architecture.md#public-entry-point).
+As a second entry point the nginx that serves the first assignment also proxies
+<http://176.109.100.164/k8s-demo/> to `127.0.0.1:8081`. It was added while the provider forwarded only
+port 80 and is kept as a fallback; the frontend uses relative URLs, so one image works both at the
+Service root and under the path prefix. Details: [docs/architecture.md](docs/architecture.md#public-entry-point).
 
 ## Local cluster (kind)
 

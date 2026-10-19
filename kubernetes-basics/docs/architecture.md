@@ -63,27 +63,15 @@ flowchart LR
 
 ## Public entry point
 
-cloud.ru forwards only ports 22 and 80 to this VM; 8081 and 443 are filtered upstream (a TCP
-connect is answered by the provider NAT, but nothing reaches the machine). The Kubernetes side is
-unaffected: the frontend Service still receives a real external address
-(`EXTERNAL-IP 176.109.100.164`, port 8081), which is what the assignment asks for, and it is
-reachable from the VM itself and from its private network.
+The frontend Service is of type `LoadBalancer`, so k3s ServiceLB publishes it on every node address,
+and the provider forwards port 8081 to the VM: **<http://176.109.100.164:8081/>**. Traffic reaches the
+nginx pods directly, without an intermediate proxy.
 
-So that the demo is also reachable from the internet, the nginx that already serves the first
-assignment proxies a path to the Service:
-
-```nginx
-location = /k8s-demo { return 301 /k8s-demo/; }
-
-location /k8s-demo/ {
-    proxy_pass http://127.0.0.1:8081/;
-    ...
-}
-```
-
-Public URL: **http://176.109.100.164/k8s-demo/**. The frontend uses relative URLs (`api/ping`,
-`styles.css`), so the same image works both at the Service root and under the path prefix. The
-nginx config is backed up next to the original (`/etc/nginx/sites-available/retro-rally.bak-*`).
+A second entry point exists for convenience: the nginx that serves the first assignment proxies
+`/k8s-demo/` to `127.0.0.1:8081` (**<http://176.109.100.164/k8s-demo/>**). It was added while the
+provider forwarded only port 80 and is kept as a fallback. The frontend uses relative URLs
+(`api/ping`, `styles.css`), so the same image works both at the Service root and under the prefix.
+The nginx config is backed up next to the original (`/etc/nginx/sites-available/retro-rally.bak-*`).
 
 **Why does the response contain the pod name?** `kubectl get pods` shows that replicas exist; only a per-request answer shows that the Service actually spreads traffic. The UI aggregates those answers into a histogram.
 

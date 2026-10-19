@@ -43,6 +43,6 @@ scaling observable.
 * images built from `backend/` and `frontend/`, imported into the k3s containerd
 * `scripts/` — bootstrap, build, deploy, smoke test, load test; CI validates the manifests with kubeconform
 
-Live demo: <http://176.109.100.164/k8s-demo/>
+Live demo: <http://176.109.100.164:8081/> (also at <http://176.109.100.164/k8s-demo/>)
 
 Full description: [kubernetes-basics/README.md](kubernetes-basics/README.md)
