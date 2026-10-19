@@ -1,0 +1,44 @@
+name: validate-manifests
+
+on:
+  push:
+    paths:
+      - "kubernetes-basics/**"
+      - ".github/workflows/validate-manifests.yml"
+  pull_request:
+    paths:
+      - "kubernetes-basics/**"
+
+jobs:
+  validate:
+    name: kustomize build + kubeconform
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kubectl
+        run: |
+          curl -sSLo kubectl https://dl.k8s.io/release/v1.31.0/bin/linux/amd64/kubectl
+          chmod +x kubectl
+
+      - name: Install kubeconform
+        run: |
+          curl -sSLo kubeconform.tar.gz https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz
+          tar -xzf kubeconform.tar.gz kubeconform
+          chmod +x kubeconform
+
+      - name: Render every overlay
+        run: |
+          for overlay in local cloud; do
+            ./kubectl kustomize "kubernetes-basics/k8s/overlays/${overlay}" > "/tmp/${overlay}.yaml"
+            echo "rendered ${overlay}: $(grep -c '^kind:' "/tmp/${overlay}.yaml") objects"
+          done
+
+      - name: Validate against Kubernetes schemas
+        run: |
+          ./kubeconform -strict -summary -kubernetes-version 1.31.0 /tmp/local.yaml /tmp/cloud.yaml
+
+      - name: Check shell scripts
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          shellcheck kubernetes-basics/scripts/*.sh

@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: k8s-demo
+  labels:
+    app: backend
+    app.kubernetes.io/name: backend
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: k8s-demo
+spec:
+  # Internal only: no external IP, reachable from inside the cluster as
+  # backend.k8s-demo.svc.cluster.local:8080
+  type: ClusterIP
+  selector:
+    app: backend
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+      protocol: TCP

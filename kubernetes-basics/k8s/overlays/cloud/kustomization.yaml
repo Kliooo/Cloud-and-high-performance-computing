@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Cloud VM (k3s ServiceLB, cloud provider load balancer or MetalLB).
+#
+# The only environment specific difference: the frontend is published on 8081
+# instead of 80, so the demo can coexist with other sites on the same machine
+# (this VM already serves the first assignment on port 80).
+resources:
+  - ../../base
+
+patches:
+  - target:
+      kind: Service
+      name: frontend
+    patch: |-
+      - op: replace
+        path: /spec/ports/0/port
+        value: 8081

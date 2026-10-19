@@ -30,3 +30,19 @@ and the data survives container restarts (named volume).
 Images on Docker Hub:
 [containers-basics-api](https://hub.docker.com/r/k1io/containers-basics-api) ·
 [containers-basics-db](https://hub.docker.com/r/k1io/containers-basics-db)
+
+## [kubernetes-basics](kubernetes-basics)
+
+Kubernetes basics (assignment 3): a replicated Node.js backend behind a `ClusterIP` Service and an
+nginx frontend published with a `LoadBalancer` Service, so it gets an IP address usable outside the
+cluster. The page shows which replica answered each request, which makes load balancing and HPA
+scaling observable.
+
+* manifests: 2 Deployments, 2 Services, ConfigMap, HPA (3…8 replicas at 60% CPU), PodDisruptionBudget
+* kustomize base plus `local` (kind, NodePort) and `cloud` (VM, LoadBalancer on :8081) overlays
+* images built from `backend/` and `frontend/`, imported into the k3s containerd
+* `scripts/` — bootstrap, build, deploy, smoke test, load test; CI validates the manifests with kubeconform
+
+Live demo: <http://176.109.100.164/k8s-demo/>
+
+Full description: [kubernetes-basics/README.md](kubernetes-basics/README.md)

@@ -1,0 +1,15 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: backend
+  namespace: k8s-demo
+  labels:
+    app: backend
+    app.kubernetes.io/name: backend
+    app.kubernetes.io/part-of: k8s-demo
+spec:
+  # A node drain may take down one replica, never two.
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: backend

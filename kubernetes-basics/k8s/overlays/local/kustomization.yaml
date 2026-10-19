@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Local cluster (kind / minikube / k3d, or Docker Desktop).
+# There is no cloud load balancer here, so the frontend is published as a NodePort.
+resources:
+  - ../../base
+
+patches:
+  - target:
+      kind: Service
+      name: frontend
+    patch: |-
+      - op: replace
+        path: /spec/type
+        value: NodePort
+      - op: add
+        path: /spec/ports/0/nodePort
+        value: 30080

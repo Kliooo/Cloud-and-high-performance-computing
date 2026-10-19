@@ -1,0 +1,14 @@
+{
+  "name": "k8s-demo-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Zero-dependency demo backend for the Kubernetes basics assignment",
+  "main": "server.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}

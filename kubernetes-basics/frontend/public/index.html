@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>k8s-demo · backend ↔ frontend</title>
+  <meta name="description" content="Kubernetes basics: a replicated backend behind an nginx frontend published with a LoadBalancer Service.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b1120'/%3E%3Cpath d='M16 6l8.5 5v10L16 26l-8.5-5V11z' fill='none' stroke='%2338bdf8' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%2334d399'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="glow" aria-hidden="true"></div>
+
+  <div class="page">
+    <header class="topbar">
+      <a class="brand" href="./">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M16 4.5l9.5 5.5v11L16 26.5 6.5 21V10z"/>
+            <circle cx="16" cy="16" r="3.2" fill="currentColor" stroke="none"/>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <strong>k8s-demo</strong>
+          <small>backend ↔ frontend</small>
+        </span>
+      </a>
+
+      <div class="topbar-right">
+        <span class="pill" id="status" data-state="pending">
+          <i class="dot" aria-hidden="true"></i>
+          <span id="statusText">checking backend…</span>
+        </span>
+        <a class="ghost-link" href="api/ping" target="_blank" rel="noreferrer">/api/ping</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p class="eyebrow">Kubernetes basics · assignment 3</p>
+        <h1>Traffic in, replicas out.</h1>
+        <p class="lede">
+          The frontend is published with a <code>LoadBalancer</code> Service and forwards every
+          <code>/api</code> call to the backend <code>ClusterIP</code>. Each response below names the pod
+          that produced it — that is the load balancing you can see with your own eyes.
+        </p>
+
+        <dl class="facts">
+          <div>
+            <dt>Frontend pod</dt>
+            <dd id="frontendPod" class="mono">—</dd>
+          </div>
+          <div>
+            <dt>Backend pods seen</dt>
+            <dd id="podCount" class="mono">0</dd>
+          </div>
+          <div>
+            <dt>Requests sent</dt>
+            <dd id="reqCount" class="mono">0</dd>
+          </div>
+          <div>
+            <dt>p95 latency</dt>
+            <dd id="p95" class="mono">—</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="panel actions">
+        <div class="panel-head">
+          <h2>Send traffic</h2>
+          <p>Ten requests are enough to see the Service rotate between replicas.</p>
+        </div>
+
+        <div class="buttons">
+          <button class="btn primary" type="button" data-send="10">Send 10 requests</button>
+          <button class="btn" type="button" data-send="100">Send 100</button>
+          <button class="btn accent" type="button" id="loadBtn">Load CPU · 30 s</button>
+          <button class="btn ghost" type="button" id="resetBtn">Reset</button>
+          <label class="switch">
+            <input type="checkbox" id="autoToggle">
+            <span class="track" aria-hidden="true"><span class="thumb"></span></span>
+            <span class="switch-label">Auto ping every 2 s</span>
+          </label>
+        </div>
+
+        <div class="progress" id="progress" hidden>
+          <div class="progress-track"><span id="progressFill"></span></div>
+          <span id="progressText" class="progress-text mono"></span>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Load distribution</h2>
+            <p>Which backend replica served the requests.</p>
+          </div>
+          <ul class="bars" id="bars">
+            <li class="empty">No requests yet.</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Recent responses</h2>
+            <p>Pod, node and round-trip time.</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col">Time</th>
+                  <th scope="col">Backend pod</th>
+                  <th scope="col">Node</th>
+                  <th scope="col" class="num">ms</th>
+                </tr>
+              </thead>
+              <tbody id="logBody">
+                <tr class="empty"><td colspan="4">Waiting for traffic…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span class="mono">frontend :8080 → backend.k8s-demo.svc.cluster.local:8080</span>
+      <span class="mono" id="buildInfo">image 1.0.0</span>
+    </footer>
+  </div>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
