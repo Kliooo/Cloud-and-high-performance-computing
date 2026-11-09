@@ -31,6 +31,8 @@ Images on Docker Hub:
 [containers-basics-api](https://hub.docker.com/r/k1io/containers-basics-api) ·
 [containers-basics-db](https://hub.docker.com/r/k1io/containers-basics-db)
 
+Full description: [docker-containers-basics/README.md](docker-containers-basics/README.md)
+
 ## [kubernetes-basics](kubernetes-basics)
 
 Kubernetes basics (assignment 3): a replicated Node.js backend behind a `ClusterIP` Service and an
