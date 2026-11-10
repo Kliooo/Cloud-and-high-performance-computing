@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: calc-config
+  namespace: rabbitmq-messaging
+  labels:
+    app: calc
+    app.kubernetes.io/name: rabbitmq-messaging
+    app.kubernetes.io/part-of: rabbitmq-messaging
+data:
+  # Same keys the services read on start-up (see app/config.py). Producer and consumer
+  # mount the same ConfigMap, so the topology names cannot drift apart.
+  RABBITMQ_HOST: rabbitmq
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_VHOST: /
+  EXCHANGE_NAME: calc.exchange
+  DEAD_LETTER_EXCHANGE: calc.dlx
+  QUEUE_NAME: calc.jobs
+  DLQ_NAME: calc.jobs.dlq
+  PREFETCH_COUNT: "10"
+  PRODUCER_INTERVAL_SECONDS: "2.5"
+  # Every N-th job is invalid on purpose, so the dead-letter queue fills up during a demo.
+  POISON_EVERY: "5"
+  HEALTH_PORT: "8080"
+  LOG_LEVEL: INFO

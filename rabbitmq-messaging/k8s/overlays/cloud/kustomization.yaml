@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Cloud VM (k3s). The management UI is not published: a UI with demo credentials must not
+# face the internet. Use `kubectl port-forward` (see README) or keep it behind a bastion.
+#
+# More consumers than locally: the point of the exercise is that a queue is consumed in
+# parallel without any coordination between the workers.
+resources:
+  - ../../base
+
+patches:
+  - target:
+      kind: Deployment
+      name: consumer
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 3

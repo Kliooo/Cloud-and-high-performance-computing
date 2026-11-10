@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer
+  namespace: rabbitmq-messaging
+  labels:
+    app: consumer
+    app.kubernetes.io/name: rabbitmq-messaging
+    app.kubernetes.io/component: consumer
+    app.kubernetes.io/part-of: rabbitmq-messaging
+spec:
+  # Two replicas share one queue: that is the competing-consumers pattern. Each message is
+  # delivered to exactly one of them, and PREFETCH_COUNT keeps the split even.
+  replicas: 2
+  selector:
+    matchLabels:
+      app: consumer
+  template:
+    metadata:
+      labels:
+        app: consumer
+        app.kubernetes.io/name: rabbitmq-messaging
+        app.kubernetes.io/component: consumer
+        app.kubernetes.io/part-of: rabbitmq-messaging
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: consumer
+      containers:
+        - name: consumer
+          image: k1io/rabbitmq-calc:1.0.0
+          imagePullPolicy: IfNotPresent
+          command: ["python", "-m", "app.consumer"]
+          ports:
+            - name: health
+              containerPort: 8080
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: calc-config
+          env:
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: RABBITMQ_USER
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: RABBITMQ_PASSWORD
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 300m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: health
+            periodSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: health
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: health
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          lifecycle:
+            preStop:
+              exec:
+                # SIGTERM already stops consuming; this leaves room for the in-flight message
+                # to be acknowledged before the process exits (at-least-once, not at-most-once).
+                command: ["sh", "-c", "sleep 3"]
+      terminationGracePeriodSeconds: 30

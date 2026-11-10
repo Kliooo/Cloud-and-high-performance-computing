@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: rabbitmq-messaging
+  labels:
+    app.kubernetes.io/name: rabbitmq-messaging
+    app.kubernetes.io/part-of: rabbitmq-messaging

@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  namespace: rabbitmq-messaging
+  labels:
+    app: rabbitmq
+    app.kubernetes.io/name: rabbitmq-messaging
+    app.kubernetes.io/component: broker
+    app.kubernetes.io/part-of: rabbitmq-messaging
+spec:
+  # Internal only: producer and consumer reach it as rabbitmq.rabbitmq-messaging.svc:5672.
+  type: ClusterIP
+  selector:
+    app: rabbitmq
+  ports:
+    - name: amqp
+      port: 5672
+      targetPort: amqp
+      protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-management
+  namespace: rabbitmq-messaging
+  labels:
+    app: rabbitmq
+    app.kubernetes.io/name: rabbitmq-messaging
+    app.kubernetes.io/component: broker
+    app.kubernetes.io/part-of: rabbitmq-messaging
+spec:
+  # Kept separate from the AMQP Service, so an overlay can publish the UI without
+  # publishing the broker. Reachable with kubectl port-forward, see the README.
+  type: ClusterIP
+  selector:
+    app: rabbitmq
+  ports:
+    - name: management
+      port: 15672
+      targetPort: management
+      protocol: TCP

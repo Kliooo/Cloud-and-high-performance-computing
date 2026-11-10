@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rabbitmq-data
+  namespace: rabbitmq-messaging
+  labels:
+    app: rabbitmq
+    app.kubernetes.io/name: rabbitmq-messaging
+    app.kubernetes.io/part-of: rabbitmq-messaging
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  # storageClassName is left to the cluster default (local-path on k3s, standard on kind).

@@ -1,0 +1,16 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: consumer
+  namespace: rabbitmq-messaging
+  labels:
+    app: consumer
+    app.kubernetes.io/name: rabbitmq-messaging
+    app.kubernetes.io/part-of: rabbitmq-messaging
+spec:
+  # A node drain may take one consumer away, never both: the queue would stop being consumed
+  # while messages keep piling up.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: consumer

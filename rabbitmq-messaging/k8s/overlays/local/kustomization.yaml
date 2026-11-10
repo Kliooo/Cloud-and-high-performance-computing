@@ -1,0 +1,20 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Local cluster (kind / k3d / minikube, or Docker Desktop).
+# There is no cloud load balancer here, so the management UI is published as a NodePort
+# on 30672: http://localhost:30672. The AMQP port stays internal on purpose.
+resources:
+  - ../../base
+
+patches:
+  - target:
+      kind: Service
+      name: rabbitmq-management
+    patch: |-
+      - op: replace
+        path: /spec/type
+        value: NodePort
+      - op: add
+        path: /spec/ports/0/nodePort
+        value: 30672
