@@ -48,3 +48,21 @@ scaling observable.
 Live demo: <http://176.109.100.164:8081/> (also at <http://176.109.100.164/k8s-demo/>)
 
 Full description: [kubernetes-basics/README.md](kubernetes-basics/README.md)
+
+## [rabbitmq-messaging](rabbitmq-messaging)
+
+Messaging for inter-service communication (assignment 4): a producer publishes calculation jobs to
+a topic exchange with a per-operation routing key, the consumers compute them and write the results
+to the log, and whatever cannot be computed is rejected into a dead-letter queue.
+
+* one image, three entry points — producer, consumer and a tool that reads the dead-letter queue
+* topology declared by the services themselves: topic exchange, durable work queue, direct
+  dead-letter exchange, DLQ, and `mandatory` publishing so nothing is dropped silently
+* guarantees: persistent messages, publisher confirms, manual ack with a bounded prefetch
+* runs on Docker Compose (RabbitMQ + producer + consumer) or Kubernetes (kustomize base with
+  local and cloud overlays, probes, PVC, PodDisruptionBudget)
+* 50 tests (unit plus an end-to-end flow against a toy broker) and `scripts/smoke-test.sh`,
+  which passes against a real RabbitMQ 3.13: routing keys, computed results, dead-lettering with
+  `x-death`, and two consumers sharing one queue
+
+Full description: [rabbitmq-messaging/README.md](rabbitmq-messaging/README.md)
