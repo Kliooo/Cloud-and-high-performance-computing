@@ -1,0 +1,2 @@
+# Pinned, so the image build is reproducible.
+pika==1.3.2

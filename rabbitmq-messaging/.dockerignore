@@ -1,0 +1,14 @@
+# Build context for the service image — the project root, because the Dockerfile lives in deploy/
+# and copies app/ and tests/ from here. Everything listed below is not sent to the build daemon.
+.env
+**/__pycache__
+**/*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+k8s/
+scripts/
+deploy/Makefile
+deploy/.env
+deploy/.env.example
+README.md

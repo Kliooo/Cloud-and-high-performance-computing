@@ -1,0 +1,2 @@
+# Enforce LF line endings: otherwise scripts/smoke-test.sh breaks in bash after a Windows checkout.
+* text=auto eol=lf

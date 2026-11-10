@@ -1,0 +1,110 @@
+# Producer and consumer of calculation jobs over RabbitMQ.
+# Everything the demo needs starts with `docker compose up`; the UI is on http://localhost:15672.
+#
+# The same image runs every service: only `command` differs. That keeps the build cache warm
+# and guarantees that producer, consumer and the DLQ tool always agree on the topology.
+
+name: rabbitmq-messaging
+
+# Shared by producer and consumer. Names are configurable so the demo can be renamed without
+# touching the code — both services read exactly the same values, so they cannot drift apart.
+x-calc-env: &calc-env
+  RABBITMQ_HOST: rabbitmq
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_USER: ${RABBITMQ_USER:-123}
+  RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-123}
+  RABBITMQ_VHOST: ${RABBITMQ_VHOST:-/}
+  EXCHANGE_NAME: ${EXCHANGE_NAME:-calc.exchange}
+  DEAD_LETTER_EXCHANGE: ${DEAD_LETTER_EXCHANGE:-calc.dlx}
+  QUEUE_NAME: ${QUEUE_NAME:-calc.jobs}
+  DLQ_NAME: ${DLQ_NAME:-calc.jobs.dlq}
+  PREFETCH_COUNT: ${PREFETCH_COUNT:-10}
+  PRODUCER_INTERVAL_SECONDS: ${PRODUCER_INTERVAL_SECONDS:-2.5}
+  # Every N-th job is invalid on purpose, so the dead-letter path is visible in the demo.
+  POISON_EVERY: ${POISON_EVERY:-5}
+  HEALTH_PORT: "8080"
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+
+services:
+
+  rabbitmq:
+    # Debian variant (not alpine): k8s/base/rabbitmq-deployment.yaml runs it as uid 999, which is
+    # the default user of this image, so the mounted volume has the expected permissions.
+    image: rabbitmq:3.13-management
+    hostname: rabbitmq
+    container_name: rabbitmq-messaging-broker
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-123}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-123}
+      RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-/}
+    ports:
+      # Management UI and AMQP are published on the loopback interface only: the demo does not
+      # expose a broker with demo credentials to the network it runs in.
+      - "127.0.0.1:${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+      - "127.0.0.1:${RABBITMQ_AMQP_PORT:-5672}:5672"
+    volumes:
+      # Durability: queues are declared durable and messages persistent, so they survive
+      # a broker restart — but only if the data directory survives it too.
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_port_connectivity"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped
+
+  producer:
+    build:
+      # The compose file lives in deploy/, the code and the Dockerfile context in the project root.
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: ${DOCKERHUB_USER:-local}/rabbitmq-calc:${IMAGE_TAG:-1.0.0}
+    # No container_name: `docker compose up --scale consumer=3` must work for the other one too.
+    command: ["python", "-m", "app.producer"]
+    environment: *calc-env
+    networks:
+      - backend
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      # A module, not a python one-liner: compose sends the exec form as a single string, and
+      # a command containing spaces would be split into broken arguments.
+      test: ["CMD", "python", "-m", "app.healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+  consumer:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: ${DOCKERHUB_USER:-local}/rabbitmq-calc:${IMAGE_TAG:-1.0.0}
+    command: ["python", "-m", "app.consumer"]
+    environment: *calc-env
+    networks:
+      - backend
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-m", "app.healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+networks:
+  backend:
+    name: rabbitmq-messaging-net
+    driver: bridge
+
+volumes:
+  rabbitmq-data:
+    name: rabbitmq-messaging-rabbitmq-data
