@@ -120,7 +120,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint, test]
     env:
-      IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/rabbitmq-calc
+      IMAGE: ${{ secrets.DOCKERHUB_USERNAME || vars.DOCKERHUB_USERNAME }}/rabbitmq-calc
     steps:
       - uses: actions/checkout@v4
 
@@ -129,21 +129,34 @@ jobs:
       - name: Check Docker Hub credentials
         id: creds
         env:
-          USER: ${{ secrets.DOCKERHUB_USERNAME }}
+          # The username is not a secret, so a repository variable is accepted as well.
+          USER: ${{ secrets.DOCKERHUB_USERNAME || vars.DOCKERHUB_USERNAME }}
           TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
-          if [ -n "${USER}" ] && [ -n "${TOKEN}" ]; then
+          user_set=$([ -n "${USER}" ] && echo yes || echo no)
+          token_set=$([ -n "${TOKEN}" ] && echo yes || echo no)
+          echo "DOCKERHUB_USERNAME present: ${user_set}"
+          echo "DOCKERHUB_TOKEN present: ${token_set}"
+          {
+            echo "### Docker Hub credentials"
+            echo ""
+            echo "| name | present |"
+            echo "|---|---|"
+            echo "| DOCKERHUB_USERNAME | ${user_set} |"
+            echo "| DOCKERHUB_TOKEN | ${token_set} |"
+          } >> "${GITHUB_STEP_SUMMARY}"
+          if [ "${user_set}" = "yes" ] && [ "${token_set}" = "yes" ]; then
             echo "ok=true" >> "${GITHUB_OUTPUT}"
           else
             echo "ok=false" >> "${GITHUB_OUTPUT}"
-            echo "::warning::DOCKERHUB_USERNAME / DOCKERHUB_TOKEN are not set: the image is built but not published. Add them in Settings -> Secrets and variables -> Actions"
+            echo "::warning::Docker Hub credentials are incomplete (username: ${user_set}, token: ${token_set}) — the image is built but not published"
           fi
 
       - name: Log in to Docker Hub
         if: steps.creds.outputs.ok == 'true'
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: ${{ secrets.DOCKERHUB_USERNAME || vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # On the default branch the image gets `latest` and the commit hash; on other
