@@ -1,0 +1,187 @@
+# CI/CD for assignment 4 (rabbitmq-messaging).
+#
+# CI: static analysis (Python, shell, YAML), unit tests, Kubernetes manifests.
+# CD: build the Docker image; on the default branch also publish it to Docker Hub.
+#
+# Required for publishing — repository settings:
+#   Secrets   DOCKERHUB_USERNAME, DOCKERHUB_TOKEN   (token with Read & Write scope)
+# Everything else works without them: the image is built, just not pushed.
+
+name: rabbitmq-messaging
+
+on:
+  push:
+    paths:
+      - "rabbitmq-messaging/**"
+      - ".github/workflows/rabbitmq-messaging.yml"
+  pull_request:
+    paths:
+      - "rabbitmq-messaging/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # A new push to the same branch cancels the previous run: no queue of stale pipelines.
+  group: rabbitmq-messaging-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PROJECT: rabbitmq-messaging
+  PYTHON_VERSION: "3.12"
+  RUFF_VERSION: "0.17.5"
+  YAMLLINT_VERSION: "1.38.0"
+  KUBECTL_VERSION: "1.31.0"
+
+jobs:
+
+  lint:
+    name: Static analysis
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: rabbitmq-messaging
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install linters
+        run: pip install "ruff==${RUFF_VERSION}" "yamllint==${YAMLLINT_VERSION}"
+
+      - name: Python — ruff
+        run: ruff check app tests
+
+      # shellcheck ships with the ubuntu runner image.
+      - name: Shell — shellcheck
+        run: shellcheck -S warning scripts/smoke-test.sh
+
+      - name: YAML — yamllint
+        run: |
+          yamllint -d '{extends: default, rules: {line-length: {max: 200}, document-start: disable}}' \
+            k8s deploy
+
+  test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: rabbitmq-messaging
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: rabbitmq-messaging/deploy/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r deploy/requirements.txt
+
+      # No broker needed: the tests use a recording channel fake and a toy broker.
+      - name: Run the suite
+        run: python -m unittest discover -s tests -t . -v
+
+  manifests:
+    name: Kubernetes manifests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kubectl
+        run: |
+          curl -sSLo kubectl "https://dl.k8s.io/release/v${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+
+      - name: Install kubeconform
+        run: |
+          curl -sSLo kubeconform.tar.gz https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz
+          tar -xzf kubeconform.tar.gz kubeconform
+          chmod +x kubeconform
+
+      - name: Render every overlay
+        run: |
+          for overlay in local cloud; do
+            ./kubectl kustomize "rabbitmq-messaging/k8s/overlays/${overlay}" > "/tmp/${overlay}.yaml"
+            echo "rendered ${overlay}: $(grep -c '^kind:' "/tmp/${overlay}.yaml") objects"
+          done
+
+      - name: Validate against Kubernetes schemas
+        run: |
+          ./kubeconform -strict -summary -kubernetes-version "${KUBECTL_VERSION}" \
+            /tmp/local.yaml /tmp/cloud.yaml
+
+  build:
+    name: Build and publish image
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    env:
+      IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/rabbitmq-calc
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Check Docker Hub credentials
+        id: creds
+        env:
+          USER: ${{ secrets.DOCKERHUB_USERNAME }}
+          TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          if [ -n "${USER}" ] && [ -n "${TOKEN}" ]; then
+            echo "ok=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "ok=false" >> "${GITHUB_OUTPUT}"
+            echo "::warning::DOCKERHUB_USERNAME / DOCKERHUB_TOKEN are not set: the image is built but not published. Add them in Settings -> Secrets and variables -> Actions"
+          fi
+
+      - name: Log in to Docker Hub
+        if: steps.creds.outputs.ok == 'true'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # On the default branch the image gets `latest` and the commit hash; on other
+      # branches it is built but only tagged locally, so pull requests never publish.
+      - name: Compose image tags
+        id: tags
+        run: |
+          if [ "${{ steps.creds.outputs.ok }}" = "true" ] && [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+            echo "tags=${IMAGE}:latest,${IMAGE}:${GITHUB_SHA::7}" >> "${GITHUB_OUTPUT}"
+          else
+            echo "tags=rabbitmq-calc:ci" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Build and push
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: rabbitmq-messaging
+          file: rabbitmq-messaging/deploy/Dockerfile
+          push: ${{ steps.creds.outputs.ok == 'true' && github.ref == 'refs/heads/main' }}
+          tags: ${{ steps.tags.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Summary
+        run: |
+          pushed="${{ steps.creds.outputs.ok == 'true' && github.ref == 'refs/heads/main' }}"
+          {
+            echo "### Docker image"
+            echo ""
+            echo '| | |'
+            echo '|---|---|'
+            echo "| Tags | \`${{ steps.tags.outputs.tags }}\` |"
+            echo "| Digest | \`${{ steps.build.outputs.digest }}\` |"
+            echo "| Pushed | ${pushed} |"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+          if [ "${pushed}" != "true" ]; then
+            echo "" >> "${GITHUB_STEP_SUMMARY}"
+            echo "_No Docker Hub credentials: add \`DOCKERHUB_USERNAME\` and \`DOCKERHUB_TOKEN\` secrets to publish._" >> "${GITHUB_STEP_SUMMARY}"
+          fi
