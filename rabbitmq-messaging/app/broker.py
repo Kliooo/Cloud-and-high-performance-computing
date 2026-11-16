@@ -74,5 +74,5 @@ def close_quietly(connection: pika.BlockingConnection | None) -> None:
         return
     try:
         connection.close()
-    except Exception:  # noqa: BLE001 — closing a broken connection must not mask the exit code
+    except Exception:
         log.debug("connection close failed", exc_info=True)

@@ -100,7 +100,7 @@ class ReadDeadLettersTest(unittest.TestCase):
     def test_x_death_is_reported(self):
         self.run_tool([message(1, "job-1")])
 
-        event = [e for e in self.printed() if e["event"] == "dead_letter"][0]
+        event = next(e for e in self.printed() if e["event"] == "dead_letter")
         self.assertEqual(event["x_death"], {"queue": "calc.jobs", "reason": "rejected", "count": 1})
 
 

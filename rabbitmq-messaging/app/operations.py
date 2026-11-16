@@ -8,7 +8,7 @@ Anything else (a dropped connection, a bug) is handled separately.
 from __future__ import annotations
 
 import math
-from typing import Callable, Sequence
+from collections.abc import Callable, Sequence
 
 # Guards against jobs that would keep a worker busy or produce absurd numbers.
 MAX_ABS_OPERAND = 1_000_000.0

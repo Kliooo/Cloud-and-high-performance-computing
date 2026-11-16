@@ -5,27 +5,32 @@ from __future__ import annotations
 import unittest
 
 from app.config import Settings
-from app.topology import DEAD_LETTER_ROUTING_KEY, ROUTING_KEY_PATTERN, declare_topology, routing_key
+from app.topology import (
+    DEAD_LETTER_ROUTING_KEY,
+    ROUTING_KEY_PATTERN,
+    declare_topology,
+    routing_key,
+)
 from tests.fakes import FakeChannel
 
 
 def make_settings(**overrides) -> Settings:
-    base = dict(
-        host="rabbitmq",
-        port=5672,
-        user="calc",
-        password="calc",
-        vhost="/",
-        exchange="calc.exchange",
-        dead_letter_exchange="calc.dlx",
-        queue="calc.jobs",
-        dead_letter_queue="calc.jobs.dlq",
-        prefetch=10,
-        interval=2.5,
-        poison_every=5,
-        health_port=8080,
-        log_level="INFO",
-    )
+    base = {
+        "host": "rabbitmq",
+        "port": 5672,
+        "user": "calc",
+        "password": "calc",
+        "vhost": "/",
+        "exchange": "calc.exchange",
+        "dead_letter_exchange": "calc.dlx",
+        "queue": "calc.jobs",
+        "dead_letter_queue": "calc.jobs.dlq",
+        "prefetch": 10,
+        "interval": 2.5,
+        "poison_every": 5,
+        "health_port": 8080,
+        "log_level": "INFO",
+    }
     base.update(overrides)
     return Settings(**base)
 

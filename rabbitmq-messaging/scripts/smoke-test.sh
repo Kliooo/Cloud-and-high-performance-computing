@@ -124,8 +124,12 @@ esac
 wait_for "a failed job reaches the dead-letter queue" 90 "[[ \"\$(queue_value ${DLQ} messages)\" -ge 1 ]]"
 check "queue ${DLQ} received at least one message" "$?"
 
-[[ "$(rejections)" -ge 1 ]]
-check "consumer logged at least one rejection with a reason" "$?"
+rejection_count="$(rejections)"
+if [[ "${rejection_count}" -ge 1 ]]; then
+  check "consumer logged at least one rejection with a reason" 0
+else
+  check "consumer logged at least one rejection with a reason (none)" 1
+fi
 
 dim "dead letters: $(queue_value "${DLQ}" messages), waiting to be processed: $(queue_value "${WORK_QUEUE}" messages)"
 

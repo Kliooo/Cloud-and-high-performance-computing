@@ -112,9 +112,11 @@ class RejectionTest(ConsumerTestBase):
     def test_unexpected_error_also_lands_in_the_dlq(self):
         body = Job(job_id="job-4", operation="add", operands=(1, 1)).to_bytes()
 
-        with mock.patch("app.consumer.calculate", side_effect=RuntimeError("boom")):
-            with self.assertLogs("consumer", level="WARNING") as logs:
-                self.deliver(body)
+        with (
+            mock.patch("app.consumer.calculate", side_effect=RuntimeError("boom")),
+            self.assertLogs("consumer", level="WARNING") as logs,
+        ):
+            self.deliver(body)
 
         reject = self.channel.last("basic_reject")
         self.assertFalse(reject["requeue"])

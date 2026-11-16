@@ -50,7 +50,7 @@ class State:
 class _Handler(BaseHTTPRequestHandler):
     server_version = "calc-health/1.0"
 
-    def do_GET(self) -> None:  # noqa: N802 — BaseHTTPRequestHandler API
+    def do_GET(self) -> None:
         state: State = self.server.state  # type: ignore[attr-defined]
         path = self.path.split("?", 1)[0]
 
@@ -72,7 +72,7 @@ class _Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def log_message(self, fmt: str, *args) -> None:  # noqa: A003 — BaseHTTPRequestHandler API
+    def log_message(self, fmt: str, *args) -> None:
         log.debug("health: " + fmt, *args)
 
 

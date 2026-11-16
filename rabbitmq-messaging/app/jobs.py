@@ -14,8 +14,8 @@ import datetime as dt
 import json
 import random
 import uuid
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Sequence
 
 from .operations import OPERATIONS
 
@@ -34,7 +34,7 @@ class Job:
     operation: str
     operands: tuple[float, ...]
     created_at: str = field(
-        default_factory=lambda: dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        default_factory=lambda: dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     )
 
     def payload(self) -> dict:

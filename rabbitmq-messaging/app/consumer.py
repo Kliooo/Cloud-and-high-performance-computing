@@ -50,7 +50,7 @@ class Consumer:
         except (InvalidMessage, OperationError) as exc:
             self._reject(method, body, job=job, reason=str(exc), reason_type=exc.__class__.__name__)
             return
-        except Exception as exc:  # noqa: BLE001 — a bug must not become an infinite redelivery
+        except Exception as exc:
             log.exception("unexpected error while handling a job")
             self._reject(method, body, job=job, reason=f"{exc.__class__.__name__}: {exc}", reason_type="unexpected")
             return
@@ -158,7 +158,7 @@ def _install_signal_handlers(stop_event, connection, channel) -> None:
             if connection.is_open and channel.is_open:
                 # The I/O loop owns the channel: touching it from this thread is unsafe.
                 connection.add_callback_threadsafe(channel.stop_consuming)
-        except Exception:  # noqa: BLE001 — shutdown must not raise
+        except Exception:
             log.debug("could not stop consuming gracefully", exc_info=True)
 
     for sig in (signal.SIGINT, signal.SIGTERM):

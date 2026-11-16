@@ -13,7 +13,7 @@ from __future__ import annotations
 import argparse
 import json
 import threading
-from typing import Callable
+from collections.abc import Callable
 
 from .broker import close_quietly, connect, open_channel
 from .config import Settings

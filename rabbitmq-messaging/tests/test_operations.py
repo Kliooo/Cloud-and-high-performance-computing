@@ -4,7 +4,13 @@ from __future__ import annotations
 
 import unittest
 
-from app.operations import MAX_ABS_OPERAND, MAX_EXPONENT, OperationError, calculate, supported_operations
+from app.operations import (
+    MAX_ABS_OPERAND,
+    MAX_EXPONENT,
+    OperationError,
+    calculate,
+    supported_operations,
+)
 
 
 class CalculateTest(unittest.TestCase):
@@ -43,9 +49,8 @@ class CalculateTest(unittest.TestCase):
 
     def test_operands_must_be_numbers(self):
         for bad in ("2", None, True, [1]):
-            with self.subTest(operand=bad):
-                with self.assertRaises(OperationError):
-                    calculate("add", (1, bad))
+            with self.subTest(operand=bad), self.assertRaises(OperationError):
+                calculate("add", (1, bad))
 
     def test_operands_must_be_finite(self):
         with self.assertRaises(OperationError):

@@ -8,9 +8,9 @@ metadata:
     app.kubernetes.io/name: rabbitmq-messaging
     app.kubernetes.io/part-of: rabbitmq-messaging
 spec:
+  # storageClassName is left to the cluster default (local-path on k3s, standard on kind).
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
       storage: 1Gi
-  # storageClassName is left to the cluster default (local-path on k3s, standard on kind).

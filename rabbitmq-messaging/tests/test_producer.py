@@ -9,7 +9,7 @@ import unittest
 import pika
 
 from app.jobs import Job, parse_job
-from app.operations import OPERATIONS, calculate
+from app.operations import OPERATIONS, OperationError, calculate
 from app.producer import build_properties, next_job, publish_job
 from tests.fakes import FakeChannel
 from tests.test_topology import make_settings
@@ -80,7 +80,7 @@ class JobGenerationTest(unittest.TestCase):
         poison = [job for index, job in enumerate(jobs) if (index + 1) % 5 == 0]
         self.assertEqual(len(poison), 3)
         for job in poison:
-            with self.assertRaises(Exception):
+            with self.assertRaises(OperationError):
                 calculate(job.operation, job.operands)
 
     def test_injection_covers_three_failure_modes(self):
