@@ -1,7 +1,7 @@
 # RabbitMQ: messaging between services
 
 [![CI](https://github.com/Kliooo/Cloud-and-high-performance-computing/actions/workflows/rabbitmq-messaging.yml/badge.svg)](https://github.com/Kliooo/Cloud-and-high-performance-computing/actions/workflows/rabbitmq-messaging.yml)
-[![Docker Hub](https://img.shields.io/docker/v/k1io/rabbitmq-calc?label=docker%20hub)](https://hub.docker.com/r/k1io/rabbitmq-calc)
+[![Docker Hub](https://img.shields.io/docker/image-size/k1io/rabbitmq-calc?label=docker%20hub)](https://hub.docker.com/r/k1io/rabbitmq-calc)
 
 Assignment: an application that generates and consumes data through RabbitMQ, with routing and a
 dead-letter queue. It runs either on Docker Compose or on Kubernetes.
